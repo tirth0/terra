@@ -1,8 +1,24 @@
+const { setAuthToken, requestAuthToken }= require('@sentinel-hub/sentinelhub-js');
+
 function notFound(req, res, next) {
   res.status(404);
   const error = new Error(`🔍 - Not Found - ${req.originalUrl}`);
   next(error);
 }
+
+const authMiddleware = async (req, res, next) => {
+  try {
+    const clientId = process.env.id;
+    const clientSecret = process.env.secret;
+    const authToken = await requestAuthToken(clientId, clientSecret);
+    req.authToken = authToken;
+    next();
+  }
+  catch(err){
+    console.log(err);
+    res.status(500);
+  }
+};
 
 /* eslint-disable no-unused-vars */
 function errorHandler(err, req, res, next) {
@@ -17,5 +33,6 @@ function errorHandler(err, req, res, next) {
 
 module.exports = {
   notFound,
-  errorHandler
+  errorHandler,
+  authMiddleware
 };
