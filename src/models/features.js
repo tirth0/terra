@@ -4,12 +4,13 @@ const { Schema } = mongoose;
 
 const coordinateSchema = new Schema({
   type: String,
+  id: String,
   geometry: {
     type: String,
     coordinates: [[[Number]]]
   }
 
-});
+}, { typeKey: '$type' });
 
 const featureSchema = new Schema({
   fieldId: String,

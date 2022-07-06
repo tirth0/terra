@@ -10,6 +10,10 @@ function setup() {
       id: 'default',
       bands: 1,
       sampleType: SampleType.FLOAT32,
+    }, 
+    {
+      id: "dataMask",
+      bands: 2
     }],
   };
 }
@@ -42,6 +46,7 @@ function evaluatePixel(sample) {
   return {
     default: [ndvi],
     ndvi_image: image,
+    dataMask: [samples.dataMask]
   };
 }
 ;`;
@@ -70,9 +75,7 @@ else if (ndvi<0.45) return [0.25,0.49,0.14];
 else if (ndvi<0.5) return [0.19,0.43,0.11];
 else if (ndvi<0.55) return [0.13,0.38,0.07];
 else if (ndvi<0.6) return [0.06,0.33,0.04];
-else return [0,0.27,0];`
-;
-
+else return [0,0.27,0];`;
 module.exports = {
   ndviTiff,
   ndviJpeg,

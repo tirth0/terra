@@ -1,11 +1,14 @@
 const imagekit = require('./image-kit');
 
-const addFile = async ({ file, folder, fileName }) => {
+const addFile = async ({
+  file, folder, fileName, ...rest
+}) => {
   try {
     const res = await imagekit.upload({
       file,
       folder,
       fileName,
+      ...rest
     });
 
     return [res, null];
