@@ -21,6 +21,7 @@ const addFile = require('../utils/addFile');
 const transform = require('../utils/transformCoordinates');
 const fetchImages = require('../helpers/fetchImages');
 const Features = require('../models/features');
+const requestStatistical = require('../utils/statistical');
 
 const getImage = async (req, res) => {
   try {
@@ -146,26 +147,24 @@ const getFieldStatistics = async (req, res) => {
       return res.status(404).send('Field not found');
     }
     const { bbox } = field;
-
-    const layerS2L2ATiff = new S2L2ALayer({
-      evalscript: ndviTiff,
-      layerId: process.env.layerID,
-      title: 'S2L2AImage',
-      description: 'fetching images from s2l2a instance',
-      acquisitionMode: AcquisitionMode.IW,
-      polarization: Polarization.DV,
-      resolution: Resolution.HIGH,
-    });
-
-    const stats = await layerS2L2ATiff.getStats({
-      geometry: (new BBox(CRS_EPSG4326, ...bbox)).toGeoJSON(),
-      fromTime: new Date(Date.UTC(2021, 11 - 1, 22, 0, 0, 0)),
-      toTime: new Date(Date.UTC(2021, 12 - 1, 22, 23, 59, 59)),
-      resolution: 2,
+    const [data, err] = await requestStatistical({
       requestsConfig,
+      geometry: field.featureCoordinates?.geometry,
     });
 
-    return res.status(200).send(stats);
+    if (err) {
+      return res.status(500).send(err.message);
+    }
+
+    let filteredData = data.data.filter((item) => item?.outputs?.data?.bands?.B0?.stats?.min > 0).map((item) => ({
+      interval: item.interval,
+      min: item?.outputs?.data?.bands?.B0?.stats?.min,
+      max: item?.outputs?.data?.bands?.B0?.stats?.max,
+      mean: item?.outputs?.data?.bands?.B0?.stats?.mean,
+      stDev: item?.outputs?.data?.bands?.B0?.stats?.stDev,
+    }));
+
+    return res.status(200).json(filteredData);
   } catch (err) {
     console.log('An error occurred', err);
     return res.status(500).send(err.message);
