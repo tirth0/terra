@@ -1,9 +1,15 @@
+/* eslint-disable max-len */
 const express = require('express');
 const morgan = require('morgan');
 const helmet = require('helmet');
 const cors = require('cors');
-
+const mongoose = require('mongoose');
 require('dotenv').config();
+
+// connect to mongoose
+mongoose.connect(process.env.mongoDbConnectionURI, { useNewUrlParser: true, useUnifiedTopology: true }, () => {
+  console.log('connected to DB');
+});
 
 const middlewares = require('./middlewares');
 const api = require('./api');
@@ -17,7 +23,7 @@ app.use(express.json());
 
 app.get('/', (req, res) => {
   res.json({
-    message: '🦄🌈✨👋🌎🌍🌏✨🌈🦄'
+    message: '🦄🌈✨👋🌎🌍🌏✨🌈🦄',
   });
 });
 

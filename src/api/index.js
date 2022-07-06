@@ -1,7 +1,7 @@
 const express = require('express');
 
 const emojis = require('./emojis');
-const sentinel = require('./sentinel.routes')
+const sentinel = require('./sentinel.routes');
 
 const router = express.Router();
 

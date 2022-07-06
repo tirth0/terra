@@ -1,4 +1,4 @@
-const { setAuthToken, requestAuthToken }= require('@sentinel-hub/sentinelhub-js');
+const { requestAuthToken } = require('@sentinel-hub/sentinelhub-js');
 
 function notFound(req, res, next) {
   res.status(404);
@@ -13,9 +13,8 @@ const authMiddleware = async (req, res, next) => {
     const authToken = await requestAuthToken(clientId, clientSecret);
     req.authToken = authToken;
     next();
-  }
-  catch(err){
-    console.log(err);
+  } catch (err) {
+    console.log('An error occurred', err.message);
     res.status(500);
   }
 };
@@ -34,5 +33,5 @@ function errorHandler(err, req, res, next) {
 module.exports = {
   notFound,
   errorHandler,
-  authMiddleware
+  authMiddleware,
 };
