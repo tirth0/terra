@@ -11,10 +11,7 @@ function setup() {
       bands: 1,
       sampleType: SampleType.FLOAT32,
     }, 
-    {
-      id: "dataMask",
-      bands: 2
-    }],
+    ],
   };
 }
 
@@ -46,7 +43,6 @@ function evaluatePixel(sample) {
   return {
     default: [ndvi],
     ndvi_image: image,
-    dataMask: [samples.dataMask]
   };
 }
 ;`;
