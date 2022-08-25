@@ -45,8 +45,8 @@ const acceptPincode = ({ pincode }) => {
     'Thanks for calling the Soil Service'
         + 'Please press 1 for crop predictions'
         + 'Press 2 for groundwater table height predictions',
-        + 'Press 3 for rainfall predictions',
-        + 'Press 4 for farm insights',
+    + 'Press 3 for rainfall predictions',
+    + 'Press 4 for farm insights',
     { loop: 3 }
   );
 
@@ -104,7 +104,7 @@ const groundwaterTableHeightPredictionsController = () => {
 const cropPredictionController = async ({ pincode }) => {
   try {
     const voiceResponse = new VoiceResponse();
-    const prediction = await cropPredictionHelper({pincode});
+    const prediction = await cropPredictionHelper({ pincode });
     voiceResponse.say('Hello, here is your prediction', {
       voice: 'alice',
       language: 'en-GB',
@@ -114,19 +114,14 @@ const cropPredictionController = async ({ pincode }) => {
       length: 1
     });
 
-    //Grow Crop 
-    
-
-    voiceResponse.say('')
+    voiceResponse.say('');
 
     voiceResponse.hangup();
     return voiceResponse.toString();
-  }
-  catch(err) {
+  } catch (err) {
     console.log(err);
   }
-}
-
+};
 
 const menu = function menu({ digit, pincode }) {
   const optionActions = {
@@ -135,8 +130,8 @@ const menu = function menu({ digit, pincode }) {
     3: rainfallPredictions,
     // 4: farmInsights,
   };
-  console.log(pincode)
-  console.log(digit)
+  console.log(pincode);
+  console.log(digit);
 
   return (optionActions[digit])
     ? optionActions[digit]({ pincode })

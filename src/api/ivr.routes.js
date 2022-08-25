@@ -6,6 +6,7 @@ const {
   welcome,
   menu
 } = require('../utils/ivrwebhook');
+const bulkSms = require('../utils/bulkSms');
 
 const router = new Router();
 
@@ -41,7 +42,9 @@ router.post('/groundwater-predictions/:pincode', (req, res) => {
 router.post('/pincode', (req, res) => {
   const pincode = req.body.Digits;
   console.log(pincode);
-  return res.send(acceptPincode({pincode}));
+  return res.send(acceptPincode({ pincode }));
 });
+
+router.get('/sendBulkSMS', bulkSms);
 
 module.exports = router;
