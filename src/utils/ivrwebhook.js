@@ -1,6 +1,6 @@
 /* eslint-disable space-unary-ops */
 const { VoiceResponse } = require('twilio').twiml;
-
+const cropPredictionHelper = require('./cropPrediction');
 /**
  * Returns an xml with the redirect
  * @return {String}
@@ -43,10 +43,10 @@ const acceptPincode = ({ pincode }) => {
   });
   gather.say(
     'Thanks for calling the Soil Service'
-        + 'Please press 1 for rainfall predictions'
+        + 'Please press 1 for crop predictions'
         + 'Press 2 for groundwater table height predictions',
-    + 'Press 3 for farm health',
-    + 'Press 4 for farm insights',
+        + 'Press 3 for rainfall predictions',
+        + 'Press 4 for farm insights',
     { loop: 3 }
   );
 
@@ -101,13 +101,42 @@ const groundwaterTableHeightPredictionsController = () => {
   redirectWelcome();
 };
 
+const cropPredictionController = async ({ pincode }) => {
+  try {
+    const voiceResponse = new VoiceResponse();
+    const prediction = await cropPredictionHelper({pincode});
+    voiceResponse.say('Hello, here is your prediction', {
+      voice: 'alice',
+      language: 'en-GB',
+    });
+
+    voiceResponse.pause({
+      length: 1
+    });
+
+    //Grow Crop 
+    
+
+    voiceResponse.say('')
+
+    voiceResponse.hangup();
+    return voiceResponse.toString();
+  }
+  catch(err) {
+    console.log(err);
+  }
+}
+
+
 const menu = function menu({ digit, pincode }) {
   const optionActions = {
-    1: rainfallPredictions,
+    1: cropPredictionController,
     2: groundwaterTableHeightPredictions,
-    // 3: farmHealth,
+    3: rainfallPredictions,
     // 4: farmInsights,
   };
+  console.log(pincode)
+  console.log(digit)
 
   return (optionActions[digit])
     ? optionActions[digit]({ pincode })

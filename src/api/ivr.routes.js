@@ -41,7 +41,7 @@ router.post('/groundwater-predictions/:pincode', (req, res) => {
 router.post('/pincode', (req, res) => {
   const pincode = req.body.Digits;
   console.log(pincode);
-  return res.send(acceptPincode(pincode));
+  return res.send(acceptPincode({pincode}));
 });
 
 module.exports = router;
