@@ -7,6 +7,7 @@ const {
   menu
 } = require('../utils/ivrwebhook');
 const bulkSms = require('../utils/bulkSms');
+const cropPredictionHelper = require('../utils/cropPrediction');
 
 const router = new Router();
 
@@ -16,10 +17,15 @@ router.post('/welcome', (req, res) => {
 });
 
 // POST: /ivr/menu
-router.post('/menu/:pincode', (req, res) => {
+router.post('/menu/:pincode', async (req, res) => {
   const digit = req.body.Digits;
   const { pincode } = req.params;
-  return res.send(menu({ digit, pincode }));
+
+  const [prediction, current_district, water_pred] = await cropPredictionHelper({ pincode });
+
+  return res.send(menu({
+    digit, pincode, prediction, current_district, water_pred
+  }));
 });
 
 // POST: /ivr/rainfall-predictions/:pincode

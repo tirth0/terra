@@ -1,3 +1,6 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-nested-ternary */
+/* eslint-disable no-console */
 /* eslint-disable space-unary-ops */
 const { VoiceResponse } = require('twilio').twiml;
 const cropPredictionHelper = require('./cropPrediction');
@@ -97,49 +100,67 @@ const groundwaterTableHeightPredictions = ({ pincode }) => {
   return voiceResponse.toString();
 };
 
-const groundwaterTableHeightPredictionsController = () => {
-  redirectWelcome();
-};
-
-const cropPredictionController = async ({ pincode }) => {
+const waterPredictionsController = (context) => {
   try {
     const voiceResponse = new VoiceResponse();
-    const prediction = await cropPredictionHelper({ pincode });
-    voiceResponse.say('Hello, here is your prediction', {
-      voice: 'alice',
-      language: 'en-GB',
-    });
+    voiceResponse.say('Hello, here is your prediction');
 
-    voiceResponse.pause({
-      length: 1
-    });
+    const { prediction, current_district, water_pred } = context;
+    const SHOULD_IRRIGATE = water_pred?.rainfall < 130;
+    const SHOULD_CONSERVE = water_pred?.['Net Ground Water Availability for future use'] < 50000;
+    const danger = SHOULD_IRRIGATE && SHOULD_CONSERVE;
+    const data = `
+        Hello,
+        Your prediction for ${current_district} is ${prediction[0]}, ${prediction[1]}, ${prediction[2]} given the soil water, rainfall, and surface/ground water availabilty in your region.
+        
+        ${danger
+    ? 'Your surface/ground water availability is low and rainfall prediction for the next six months is below average. Consider switching crops as per our recommendations or consider choosing sustainable irrigation methods like Drip irrigation.'
+    : SHOULD_IRRIGATE
+      ? 'Your surface/ground water availability is good and rainfall prediction for the next six months is below average. Consider irrigating using artificial means using ground or surface water.'
+      : 'Your surface/ground water availability is reducing but rainfall prediction for the next six months is above average. Consider saving groundwater by relying on rain.'
+}`;
+    voiceResponse.say(data, { loop: 3 });
+    voiceResponse.say('Thank you for using the soil service');
+    voiceResponse.hangup();
+    return voiceResponse.toString();
+  } catch (err) {
+    console.log(err);
+    return err;
+  }
+};
 
-    voiceResponse.say('');
+function cropPredictionController(context) {
+  const voiceResponse = new VoiceResponse();
+  try {
+    console.log(context);
+    voiceResponse.say('Hello, here is your prediction');
+
+    const { prediction, current_district, water_pred } = context;
+    voiceResponse.say(`The crop prediction for ${current_district} is ${prediction[0]}, ${prediction[1]}, ${prediction[2]}`, { loop: 3 });
+    voiceResponse.say('Thank you for using the soil service');
 
     voiceResponse.hangup();
     return voiceResponse.toString();
   } catch (err) {
     console.log(err);
+    return err;
   }
-};
+}
 
-const menu = function menu({ digit, pincode }) {
+const menu = function menu(context) {
   const optionActions = {
     1: cropPredictionController,
-    2: groundwaterTableHeightPredictions,
-    3: rainfallPredictions,
+    2: waterPredictionsController,
     // 4: farmInsights,
   };
-  console.log(pincode);
-  console.log(digit);
-
-  return (optionActions[digit])
-    ? optionActions[digit]({ pincode })
+  console.log(context);
+  return (optionActions[context.digit])
+    ? optionActions[context.digit](context)
     : redirectWelcome();
 };
 
 module.exports = {
-  groundwaterTableHeightPredictionsController,
+  waterPredictionsController,
   rainfallPredictionsController,
   acceptPincode,
   welcome,
